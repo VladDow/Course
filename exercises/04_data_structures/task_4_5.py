@@ -20,5 +20,19 @@
 проверять результат.
 """
 
+def remls(ls, a):
+    for x in ls:
+        if ls.count(x) <= a:
+            ls.remove(x)
+
 command1 = "switchport trunk allowed vlan 1,2,3,5,8"
 command2 = "switchport trunk allowed vlan 1,3,8,9"
+
+result = list(command1.split()[-1].replace(',',''))
+result.extend(list(command2.split()[-1].replace(',','')))
+result.sort()
+
+remls(result, 1)
+remls(result, 2)
+
+print(result)
