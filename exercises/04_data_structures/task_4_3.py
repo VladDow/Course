@@ -23,7 +23,5 @@
 
 config = "switchport trunk allowed vlan 1,3,10,20,30,100"
 result = config.split(',')
-for i in result[0]:
-    if i.isdigit():
-        result[0] = i
+result[0] = result[0].split()[-1]
 print(result)

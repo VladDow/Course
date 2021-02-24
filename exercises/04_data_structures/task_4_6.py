@@ -24,4 +24,4 @@ print('''Prefix                {:<20}
 AD/Metric             {:<20}
 Next-Hop              {:<20}
 Last update           {:<20}
-Outbound Interface    {:<20}'''.format(result[0], result[1], result[3], result[4], result[5]))
+Outbound Interface    {:<20}'''.format(result[0], result[1].strip('[]'), result[3], result[4], result[5]))

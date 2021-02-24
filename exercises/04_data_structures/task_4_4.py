@@ -24,13 +24,5 @@
 """
 
 vlans = [10, 20, 30, 1, 2, 100, 10, 30, 3, 4, 10]
-result = sorted(vlans)
-
-for x in result:
-    if result.count(x) == 2:
-        result.remove(x)
-    if result.count(x) == 3:
-        result.remove(x)
-        result.remove(x)
-
+result = sorted(set(vlans))
 print(result)
