@@ -20,3 +20,9 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+
+with open('CAM_table.txt', 'r') as _table:
+    for line in _table:
+        line_split = line.rstrip().split()
+        if len(line_split) > 3 and len(line_split[1].split('.')) == 3:
+            print('{:4}     {:14}      {:5}'.format(line_split[0], line_split[1], line_split[3]))

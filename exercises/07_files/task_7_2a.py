@@ -17,3 +17,19 @@
 """
 
 ignore = ["duplex", "alias", "configuration"]
+
+import sys
+
+try:
+    with open(sys.argv[1], 'r') as config:
+        for line in config:
+            flag = True
+            if not line.startswith('!'):
+                for ignore_word in ignore:
+                    if line.strip().count(ignore_word.strip()) != 0:
+                        flag = False
+                        break
+                if flag:
+                    print(line.rstrip())
+except IndexError or FileNotFoundError:
+    print('Имя файла, вероятно, введено не корректно!')

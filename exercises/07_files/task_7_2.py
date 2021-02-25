@@ -39,3 +39,13 @@ interface Ethernet0/3
 ...
 
 """
+
+import sys
+
+try:
+    with open(sys.argv[1], 'r') as config:
+        for line in config:
+            if not line.startswith('!'):
+                print(line.rstrip())
+except IndexError or FileNotFoundError:
+    print('Имя файла, вероятно, введено не корректно!')
