@@ -19,7 +19,7 @@
 
 В этом задании заготовка для функции уже сделана и надо только продолжить писать
 само тело функции.
-
+OOX
 
 Пример итогового списка (перевод строки после каждого элемента сделан
 для удобства чтения):
@@ -64,7 +64,6 @@ access_config_2 = {
     "FastEthernet0/09": 107,
 }
 
-
 def generate_access_config(intf_vlan_mapping, access_template):
     """
     intf_vlan_mapping - словарь с соответствием интерфейс-VLAN такого вида:
@@ -75,3 +74,19 @@ def generate_access_config(intf_vlan_mapping, access_template):
 
     Возвращает список всех портов в режиме access с конфигурацией на основе шаблона
     """
+    results = []
+    for intf, vlan in intf_vlan_mapping.items():
+        results.append('interface {:<20}'.format(intf))
+        for line in access_template:
+            if line.strip().endswith('vlan'):
+                results.append('{command} {vlan}'.format(command = line.strip(), vlan = vlan))
+            else:
+                results.append(line)
+    return results
+
+print('\n'.join(generate_access_config(access_config, access_mode_template)))
+
+print('\n', '#' * 30, '\n')
+
+print('\n'.join(generate_access_config(access_config_2, access_mode_template)))
+
