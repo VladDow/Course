@@ -47,7 +47,6 @@
 
 ignore = ["duplex", "alias", "configuration"]
 
-
 def ignore_command(command, ignore):
     """
     Функция проверяет содержится ли в команде слово из списка ignore.
@@ -64,3 +63,25 @@ def ignore_command(command, ignore):
         if word in command:
             ignore_status = True
     return ignore_status
+
+def convert_config_to_dict(config_filename):
+    dict_config = dict()
+    with open(config_filename, 'r') as config:
+        for line in config:
+            if not line.strip().startswith('!') and line.strip() != '':
+                if not ignore_command(line.strip(), ignore):
+                    dict_config[line.strip()] = []
+                    if line.strip().startswith('interface'):
+                        for line_command in config:
+                            if line_command.strip().startswith('!'):
+                                break
+                            elif line_command.strip().startswith('duplex auto'):
+                                continue
+                            else:
+                                dict_config[line.strip()].append(line_command.strip())
+    return dict_config
+
+dict_config = convert_config_to_dict('config_sw1.txt')
+
+for key, item in dict_config.items():
+    print(f'{key} {item}')
