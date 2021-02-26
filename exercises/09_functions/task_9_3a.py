@@ -25,3 +25,35 @@
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+
+def get_int_vlan_map(config_filename):
+    try:
+        access = dict()
+        trunk = dict()
+        with open(config_filename, 'r') as config:
+            intf = None
+            for line in config:
+                if not line.strip().startswith('!'):
+                    if 'FastEthernet' in line.strip():
+                        intf = line.strip().split()[-1]
+                    elif 'mode access' in line.strip():
+                        access[intf] = 1
+                    elif 'access vlan' in line.strip():
+                        access[intf] = int(line.strip().split()[-1])
+                    elif 'trunk allowed vlan' in line.strip():
+                        trunk[intf] = [int(item) for item in line.strip().split()[-1].split(',')]
+        results = access
+        results.update(trunk)
+        return tuple(results.items())
+    except FileNotFoundError:
+        print('Ошибка в имени файла!')
+        return None
+
+config = get_int_vlan_map('config_sw2.txt')
+
+for item in config:
+    print(item[0])
+    if not str(item[1]).isdigit():
+        print('VLAN:', ', '.join([str(vlan) for vlan in item[1]]))
+    else:
+        print('VLAN:', item[1])
