@@ -36,7 +36,6 @@ while True:
     else:
         print('VLAN был введен не верно!')
 
-vlans.sort()
 for vlan in vlans:
     if v_number == vlan[0]:
         print('{:<4}     {:14}      {:5}'.format(vlan[0], vlan[1], vlan[2]))
