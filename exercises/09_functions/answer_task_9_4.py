@@ -30,7 +30,7 @@
     "interface FastEthernet0/0": [
         "switchport mode access",
         "switchport access vlan 10",
-    ]ll,
+    ],
     "interface FastEthernet0/1": [
         "switchport trunk encapsulation dot1q",
         "switchport trunk allowed vlan 100,200",
@@ -45,9 +45,8 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
 
-from pprint import pprint
-
 ignore = ["duplex", "alias", "configuration"]
+
 
 def ignore_command(command, ignore):
     """
@@ -68,19 +67,15 @@ def ignore_command(command, ignore):
 
 
 def convert_config_to_dict(config_filename):
-    dict_config = dict()
-    with open(config_filename, 'r') as config:
-        last_key = None
-        for line in config:
-            if not line.startswith('!') and line.strip() != '' and not ignore_command(line, ignore):
-                if not line.startswith(' '):
-                    last_key = line.strip()
-                    dict_config[last_key] = []
-                elif line.startswith(' '):
-                    dict_config[last_key].append(line.strip())
-    return dict_config
+    config_dict = {}
+    with open(config_filename) as f:
+        for line in f:
+            line = line.rstrip()
+            if line and not (line.startswith("!") or ignore_command(line, ignore)):
+                if line[0].isalnum():
+                    section = line
+                    config_dict[section] = []
+                else:
+                    config_dict[section].append(line.strip())
+    return config_dict
 
-
-if __name__ == '__main__':
-    dict_config = convert_config_to_dict('config_sw1.txt')
-    pprint(dict_config)

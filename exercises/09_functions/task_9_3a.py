@@ -26,6 +26,8 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
 
+from pprint import pprint
+
 def get_int_vlan_map(config_filename):
     try:
         access = dict()
@@ -42,18 +44,11 @@ def get_int_vlan_map(config_filename):
                         access[intf] = int(line.strip().split()[-1])
                     elif 'trunk allowed vlan' in line.strip():
                         trunk[intf] = [int(item) for item in line.strip().split()[-1].split(',')]
-        results = access
-        results.update(trunk)
-        return tuple(results.items())
+        return (access, trunk)
     except FileNotFoundError:
         print('Ошибка в имени файла!')
         return None
 
-config = get_int_vlan_map('config_sw2.txt')
-
-for item in config:
-    print(item[0])
-    if not str(item[1]).isdigit():
-        print('VLAN:', ', '.join([str(vlan) for vlan in item[1]]))
-    else:
-        print('VLAN:', item[1])
+if __name__ == '__main__':
+    config = get_int_vlan_map('config_sw1.txt')
+    pprint(config)

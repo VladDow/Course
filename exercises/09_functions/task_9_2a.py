@@ -48,7 +48,7 @@ def generate_trunk_config(intf_vlan_mapping, trunk_template):
         results[intf] = list()
         for line in trunk_template:
             if line.strip().endswith('vlan'):
-                results[intf].append('{command} {vlans}'.format(command = line.strip(), vlans = ', '.join([str(vl) for vl in vlan])))
+                results[intf].append('{command} {vlans}'.format(command = line.strip(), vlans = ','.join([str(vl) for vl in vlan])))
             else:
                 results[intf].append(line)
     return results
