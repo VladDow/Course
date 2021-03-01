@@ -22,16 +22,14 @@ interface Loopback0
 
 Проверить работу функции на примере файла config_r1.txt.
 """
-
-from pprint import pprint
 import re
 
-def get_ints_without_description(name_file):
-    with open(name_file, 'r') as config:
-        regular = re.compile(r'\ninterface (?P<intf>.+)\n(?! description)')
-        results = [item.group('intf') for item in regular.finditer(config.read())]
-    return results
 
+def get_ints_without_description(config):
+    regex = re.compile(r"!\ninterface (?P<intf>\S+)\n"
+                       r"(?P<descr> description \S+)?")
+    with open(config) as src:
+        match = regex.finditer(src.read())
+        result = [m.group('intf') for m in match if m.lastgroup == 'intf']
+        return result
 
-if __name__ == '__main__':
-    pprint(get_ints_without_description('config_r1.txt'))

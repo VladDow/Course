@@ -26,8 +26,7 @@
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
-
-from pprint import pprint
+import re
 
 headers = ["hostname", "ios", "platform"]
 
@@ -37,13 +36,5 @@ data = [
     ("SW1", "12.2(55)SE9", "Cisco WS-C2960-8TC-L"),
 ]
 
-
-def convert_to_dict(headers, data):
-    config = []
-    for item in data:
-        config.append( {headers[index]: value for index, value in enumerate(item) } )
-    return config
-
-
-if __name__  == '__main__':
-    pprint(convert_to_dict(headers, data))
+def convert_to_dict(headers, sh_list):
+    return [dict(zip(headers, i)) for i in sh_list]

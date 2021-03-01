@@ -29,23 +29,39 @@ IP-адреса, диапазоны адресов и так далее, так 
 
 """
 import re
-from pprint import pprint
 
 
-def get_ip_from_cfg(file_config):
-    config_ip = {}
-    with open(file_config, 'r') as config:
-        for line in config:
-            if line.startswith('interface'):
-                regular = re.compile(r'\S+ (\S+)')
-                key = regular.search(line).group(1)
-            if line.startswith(' ip address'):
-                if not config_ip.get(key):
-                    config_ip[key] = []
-                regular = re.compile(r' ip address (\S+) (\S+)')
-                config_ip[key].append(regular.search(line).groups())
-    return config_ip
+def get_ip_from_cfg(filename):
+    result = {}
+    regex = (r"^interface (?P<intf>\S+)"
+             r"|address (?P<ip>\S+) (?P<mask>\S+)")
+
+    with open(filename) as f:
+        for line in f:
+            match = re.search(regex, line)
+            if match:
+                if match.lastgroup == "intf":
+                    intf = match.group(match.lastgroup)
+                elif match.lastgroup == "mask":
+                    result.setdefault(intf, [])
+                    result[intf].append(match.group("ip", "mask"))
+    return result
 
 
-if __name__ == '__main__':
-    pprint(get_ip_from_cfg('config_r2.txt'))
+# еще один вариант решения
+
+def get_ip_from_cfg(filename):
+    result = {}
+    with open(filename) as f:
+        # сначала отбираем нужные куски конфигурации
+        match = re.finditer(
+            "interface (\S+)\n"
+            "(?: .*\n)*"
+            " ip address \S+ \S+\n"
+            "( ip address \S+ \S+ secondary\n)*",
+            f.read(),
+        )
+        # потом в этих частях находим все IP-адреса
+        for m in match:
+            result[m.group(1)] = re.findall("ip address (\S+) (\S+)", m.group())
+    return result

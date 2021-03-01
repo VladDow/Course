@@ -23,20 +23,11 @@
 а не ввод пользователя.
 
 """
-
 import re
-from pprint import pprint
 
 
-def get_ip_from_cfg(file_config):
-    config_ip = []
-    with open(file_config, 'r') as config:
-        for line in config:
-            if line.startswith(' ip address'):
-                regular = re.compile(r' ip address (?P<ip>\S+) (?P<mask>\S+)')
-                config_ip.append(regular.search(line).groups())
-    return config_ip
-
-
-if __name__ == '__main__':
-    pprint(get_ip_from_cfg('config_r1.txt'))
+def get_ip_from_cfg(config):
+    regex = r"ip address (\S+) (\S+)"
+    with open(config) as f:
+        result = [m.groups() for m in re.finditer(regex, f.read())]
+    return result
