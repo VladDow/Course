@@ -42,47 +42,36 @@
 
 Кроме того, создан список заголовков (headers), который должен быть записан в CSV.
 """
-
-import glob
 import re
 import csv
-
-sh_version_files = glob.glob("sh_vers*")
-# print(sh_version_files)
-
-headers = ["hostname", "ios", "image", "uptime"]
+import glob
 
 
-def parse_sh_version(sh_version_command):
-    '''
-    * ожидает как аргумент вывод команды sh version одной строкой (не имя файла)
-    * возвращает кортеж из трёх элементов:
-        - ios - в формате "12.4(5)T"
-        - image - в формате "flash:c2800-advipservicesk9-mz.124-5.T.bin"
-        - uptime - в формате "5 days, 3 hours, 3 minutes"
-    '''
-    regular_e = re.compile(r'uptime is (.*\S+.*)\n.*?\nSystem image file is "(?P<image>\S+)"')
-    regular_version = re.compile(r'^.*?Version (\S+),')
-    version = regular_version.search(sh_version_command).group(1)
-    results = regular_e.search(sh_version_command)
-    return (version, results.group(2), results.group(1))
+def parse_sh_version(sh_ver_output):
+    regex = (
+        "Cisco IOS .*? Version (?P<ios>\S+), .*"
+        "uptime is (?P<uptime>[\w, ]+)\n.*"
+        'image file is "(?P<image>\S+)".*'
+    )
+    match = re.search(regex, sh_ver_output, re.DOTALL,)
+    if match:
+        return match.group("ios", "image", "uptime")
 
 
 def write_inventory_to_csv(data_filenames, csv_filename):
-    '''
-    * data_filenames - ожидает как аргумент список имен файлов с выводом sh version
-    * csv_filename - ожидает как аргумент имя файла (например, routers_inventory.csv), в который будет записана информация в формате CSV
-    * функция записывает содержимое в файл, в формате CSV и ничего не возвращает
-    '''
-    with open(csv_filename, 'w') as csv_file:
-        config_csv = csv.writer(csv_file)
-        config_csv.writerow(headers)
-        for file_config in data_filenames:
-            with open(file_config, 'r') as config:
-                hostname_re = re.compile(r'\S+_\S+_(\S+)\.\S+')
-                name = hostname_re.search(config.name).group(1)
-                config_csv.writerow( (name, ) + parse_sh_version(config.read()))
+    headers = ["hostname", "ios", "image", "uptime"]
+    with open(csv_filename, "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+
+        for filename in data_filenames:
+            hostname = re.search("sh_version_(\S+).txt", filename).group(1)
+            with open(filename) as f:
+                parsed_data = parse_sh_version(f.read())
+                if parsed_data:
+                    writer.writerow([hostname] + list(parsed_data))
 
 
-if __name__ == '__main__':
-    write_inventory_to_csv(sh_version_files, 'routers_inventory.csv')
+if __name__ == "__main__":
+    sh_version_files = glob.glob("sh_vers*")
+    write_inventory_to_csv(sh_version_files, "routers_inventory.csv")

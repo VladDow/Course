@@ -24,18 +24,23 @@ R6           Fa 0/2          143           R S I           2811       Fa 0/0
 
 Проверить работу функции на содержимом файла sh_cdp_n_sw1.txt
 """
-
 import re
-from pprint import pprint
 
 
-def parse_sh_cdp_neighbors(show_cdp_neighbors):
-    regular_device = re.compile(r'(\S+)>.*')
-    regular_e = re.compile(r'(?P<device_ID>\S+) +(?P<local_intf>\S+ \S+) +\d+ +[\S ]+ +\S+ +(?P<port>\S+ \S+)')
-    connections = {regular_device.search(show_cdp_neighbors).group(1): { item.group('local_intf'): {item.group('device_ID'): item.group('port')} for item in regular_e.finditer(show_cdp_neighbors) } }
-    return connections
+def parse_sh_cdp_neighbors(command_output):
+    regex = re.compile(
+        r"(?P<r_dev>\w+)  +(?P<l_intf>\S+ \S+)"
+        r"  +\d+  +[\w ]+  +\S+ +(?P<r_intf>\S+ \S+)"
+    )
+    connect_dict = {}
+    l_dev = re.search(r"(\S+)[>#]", command_output).group(1)
+    connect_dict[l_dev] = {}
+    for match in regex.finditer(command_output):
+        r_dev, l_intf, r_intf = match.group("r_dev", "l_intf", "r_intf")
+        connect_dict[l_dev][l_intf] = {r_dev: r_intf}
+    return connect_dict
 
 
-if __name__ == '__main__':
-    with open('sh_cdp_n_r1.txt', 'r') as f:
-        pprint(parse_sh_cdp_neighbors(f.read()))
+if __name__ == "__main__":
+    with open("sh_cdp_n_sw1.txt") as f:
+        print(parse_sh_cdp_neighbors(f.read()))

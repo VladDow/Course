@@ -21,7 +21,7 @@ Total number of bindings: 2
 
 В итоговом csv файле должно быть такое содержимое:
 switch,mac,ip,vlan,interface
-sw3, 00:E9:BC:3F:A6:50, 100.1.1.6,3, FastEthernet0/20
+sw3,00:E9:BC:3F:A6:50,100.1.1.6,3,FastEthernet0/20
 sw3,00:E9:22:11:A6:50,100.1.1.7,3,FastEthernet0/21
 
 Первый столбец в csv файле имя коммутатора надо получить из имени файла,
@@ -31,31 +31,25 @@ sw3,00:E9:22:11:A6:50,100.1.1.7,3,FastEthernet0/21
 sw2_dhcp_snooping.txt, sw3_dhcp_snooping.txt.
 
 """
-
 import csv
 import re
+import glob
 
-headers = ['switch', 'mac', 'ip', 'vlan', 'interface']
 
 def write_dhcp_snooping_to_csv(filenames, output):
-    '''
-    Аргументы функции:
-    * filenames - список с именами файлов с выводом show dhcp snooping binding
-    * output - имя файла в формате csv, в который будет записан результат
-
-    Функция ничего не возвращает.
-    '''
-    with open(output, 'w') as config_csv:
-        config_csv_file = csv.writer(config_csv)
-        config_csv_file.writerow(headers)
-        for file_config in filenames:
-            with open(file_config, 'r') as config:
-                regular = re.compile(r'(\S+) +(\S+) +\d+ +\S+ +(\d+) +(\S+)')
-                for item in regular.finditer('\n'.join(config.read().split('\n')[2:])):
-                    reuslt = [config.name.split('_')[0]]
-                    reuslt.extend(item.groups())
-                    config_csv_file.writerow(reuslt)
+    regex = r"(\S+) +(\S+) +\d+ +\S+ +(\d+) +(\S+)"
+    with open(output, "w") as dest:
+        writer = csv.writer(dest)
+        writer.writerow(["switch", "mac", "ip", "vlan", "interface"])
+        for filename in filenames:
+            switch = re.search("([^/]+)_dhcp_snooping.txt", filename).group(1)
+            with open(filename) as f:
+                for line in f:
+                    match = re.search(regex, line)
+                    if match:
+                        writer.writerow((switch,) + match.groups())
 
 
-if __name__ == '__main__':
-    write_dhcp_snooping_to_csv(['sw1_dhcp_snooping.txt', 'sw2_dhcp_snooping.txt', 'sw3_dhcp_snooping.txt'], 'test.csv')
+if __name__ == "__main__":
+    sh_dhcp_snoop_files = glob.glob("*_dhcp_snooping.txt")
+    write_dhcp_snooping_to_csv(sh_dhcp_snoop_files, "example_csv.csv")
